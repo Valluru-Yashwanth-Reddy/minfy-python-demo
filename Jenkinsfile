@@ -1,7 +1,7 @@
 pipeline {
     agent any
 
-    stages {
+    stagesi {
         stage ("First Stage") {
             steps {
                 script {
