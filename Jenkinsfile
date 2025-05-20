@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'yashwanth2003/python_jenkins'  // Updated image name
+        DOCKER_IMAGE = 'yashwanth2003/python_jenkins'
         IMAGE_TAG = 'latest'
     }
 
@@ -13,28 +13,8 @@ pipeline {
             }
         }
 
-        stage('Verify Docker') {
-            steps {
-                // Check if Docker is installed and running
-                sh 'docker --version'  // To verify Docker is installed
-                sh 'docker info'       // To get more details about Docker
-            }
-        }
-
-        stage('Clean Docker') {
-            steps {
-                // Remove unused Docker images (only if Docker is working)
-                sh 'docker system prune -af || true'
-            }
-        }
-
         stage('Build Docker Image') {
             steps {
-                // Print the current directory for debugging purposes
-                sh 'pwd'
-                sh 'ls -l'  // To list all files and confirm Dockerfile's location
-                
-                // Adjust the path if necessary (change it if Dockerfile is in a subdir)
                 sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
             }
         }
