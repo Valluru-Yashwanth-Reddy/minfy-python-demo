@@ -13,24 +13,29 @@ pipeline {
             }
         }
 
+        stage('Verify Docker') {
+            steps {
+                // Check if Docker is installed and running
+                sh 'docker --version'  // To verify Docker is installed
+                sh 'docker info'       // To get more details about Docker
+            }
+        }
+
         stage('Clean Docker') {
             steps {
-                // Optional step to clean up unused images
+                // Remove unused Docker images (only if Docker is working)
                 sh 'docker system prune -af || true'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                // Build Docker image from the correct path
+                // Print the current directory for debugging purposes
+                sh 'pwd'
+                sh 'ls -l'  // To list all files and confirm Dockerfile's location
+                
+                // Adjust the path if necessary (change it if Dockerfile is in a subdir)
                 sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
-            }
-        }
-
-        stage('Verify Docker') {
-            steps {
-                // Check Docker version for debugging
-                sh 'docker --version'
             }
         }
 
@@ -48,7 +53,6 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
-                // Push the image to Docker Hub
                 sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
             }
         }
@@ -56,7 +60,6 @@ pipeline {
 
     post {
         always {
-            // Ensure to log out from Docker Hub after each build
             sh 'docker logout'
         }
     }
