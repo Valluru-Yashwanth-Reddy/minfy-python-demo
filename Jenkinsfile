@@ -1,23 +1,46 @@
 pipeline {
     agent any
-    
+
     environment {
-        DOCKER_IMAGE = 'yashwanth2003'/my-python-app:latest'
+        DOCKER_IMAGE = 'yourdockerhubusername/yourimagename'  // Change this
+        IMAGE_TAG = 'latest'
     }
 
     stages {
-        stage('Build Image') {
+        stage('Checkout Code') {
             steps {
-                sh "docker build -t ${DOCKER_IMAGE} ."
+                checkout scm  // Jenkins will pull your repo (Dockerfile + script.py)
             }
         }
-        stage('Push to Docker Hub') {
+
+        stage('Build Docker Image') {
             steps {
-                withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USER', passwordVariable: 'DOCKER_PASS')]) {
-                    sh "echo ${DOCKER_PASS} | docker login -u ${DOCKER_USER} --password-stdin"
-                    sh "docker push ${DOCKER_IMAGE}"
+                sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
+            }
+        }
+
+        stage('Login to Docker Hub') {
+            steps {
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerhub',  // Jenkins credential ID
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                    sh 'echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin'
                 }
             }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker logout'
         }
     }
 }
