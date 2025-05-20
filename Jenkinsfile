@@ -13,9 +13,24 @@ pipeline {
             }
         }
 
+        stage('Clean Docker') {
+            steps {
+                // Optional step to clean up unused images
+                sh 'docker system prune -af || true'
+            }
+        }
+
         stage('Build Docker Image') {
             steps {
+                // Build Docker image from the correct path
                 sh "docker build -t ${DOCKER_IMAGE}:${IMAGE_TAG} ."
+            }
+        }
+
+        stage('Verify Docker') {
+            steps {
+                // Check Docker version for debugging
+                sh 'docker --version'
             }
         }
 
@@ -33,6 +48,7 @@ pipeline {
 
         stage('Push Docker Image') {
             steps {
+                // Push the image to Docker Hub
                 sh "docker push ${DOCKER_IMAGE}:${IMAGE_TAG}"
             }
         }
@@ -40,6 +56,7 @@ pipeline {
 
     post {
         always {
+            // Ensure to log out from Docker Hub after each build
             sh 'docker logout'
         }
     }
