@@ -2,14 +2,14 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'yourdockerhubusername/yourimagename'  // Change this
+        DOCKER_IMAGE = 'yashwanth2003/python_jenkins'  // Updated image name
         IMAGE_TAG = 'latest'
     }
 
     stages {
         stage('Checkout Code') {
             steps {
-                checkout scm  // Jenkins will pull your repo (Dockerfile + script.py)
+                checkout scm
             }
         }
 
@@ -22,7 +22,7 @@ pipeline {
         stage('Login to Docker Hub') {
             steps {
                 withCredentials([usernamePassword(
-                    credentialsId: 'dockerhub',  // Jenkins credential ID
+                    credentialsId: 'dockerhub',
                     usernameVariable: 'DOCKER_USER',
                     passwordVariable: 'DOCKER_PASS'
                 )]) {
